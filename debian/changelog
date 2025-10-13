@@ -1,5 +1,20 @@
-template-repository (1.0-1) unstable; urgency=medium
+ocaml-augeas (0.6-2) unstable; urgency=medium
 
-  * Initial release
+  * Make build robust against make --shuffle
+  * Update pkg-config build-dependency
 
- -- Tsic404 <liuheng@deepin.org>  Sat, 28 Jan 2023 13:46:49 +0800
+ -- Hilko Bengen <bengen@debian.org>  Wed, 27 Nov 2024 20:00:22 +0000
+
+ocaml-augeas (0.6-1) unstable; urgency=medium
+
+  * Upload to unstable
+  * Update watch file
+  * Fix gbp.conf
+
+ -- Hilko Bengen <bengen@debian.org>  Sun, 11 Jun 2023 20:02:02 +0200
+
+ocaml-augeas (0.6-1~exp1) experimental; urgency=medium
+
+  * Initial upload to experimental
+
+ -- Hilko Bengen <bengen@debian.org>  Tue, 14 Mar 2023 00:09:25 +0100

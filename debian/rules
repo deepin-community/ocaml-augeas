@@ -1,4 +1,7 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@
+	dh $@ --with=ocaml
+
+override_dh_auto_build:
+	dh_auto_build --no-parallel

@@ -1,0 +1,13 @@
+augeas-c.c
+augeas.ml
+augeas.mli
+configure.ac
+.depend
+.gitignore
+COPYING.LIB
+install-sh
+m4/ocaml.m4
+Makefile.in
+MANIFEST
+META.in
+test_augeas.ml

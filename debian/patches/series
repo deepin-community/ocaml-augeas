@@ -1,0 +1,5 @@
+0001-Use-ocamlopt-g-option.patch
+0002-caml_named_value-returns-const-value-pointer-in-OCam.patch
+0003-Use-OCAMLLIB-in-Makefile.in.patch
+0004-Deal-with-architectures-that-lack-a-OCaml-native-com.patch
+0005-Make-build-robust-against-make-shuffle.patch

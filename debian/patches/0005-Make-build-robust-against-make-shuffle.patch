@@ -1,0 +1,24 @@
+From: Hilko Bengen <bengen@debian.org>
+Date: Wed, 27 Nov 2024 19:33:21 +0000
+Subject: Make build robust against make --shuffle
+
+This ia a GNU make 4.4 feature, see
+https://people.debian.org/~sanvila/make-shuffle/
+---
+ Makefile.in | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/Makefile.in b/Makefile.in
+index fdd0b1b..4d23cb2 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -60,6 +60,9 @@ endif
+ 
+ # Test program.
+ 
++test_augeas.cmx: mlaugeas.cmxa
++test_augeas.cmo: mlaugeas.cma
++
+ test_augeas: test_augeas.cmo test_root mlaugeas.cma
+ 	$(OCAMLFIND) ocamlc -o $@ mlaugeas.cma $<
+ 
