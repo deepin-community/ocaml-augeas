@@ -1,0 +1,130 @@
+# Augeas OCaml bindings.
+# Copyright (C) 2008 Red Hat Inc., Richard W.M. Jones
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+#
+# $Id: Makefile.in,v 1.2 2008/05/06 10:48:20 rjones Exp $
+
+PACKAGE		= @PACKAGE_NAME@
+VERSION		= @PACKAGE_VERSION@
+
+OCAMLFIND	= @OCAMLFIND@
+OCAMLMKLIB	= @OCAMLMKLIB@
+OCAMLDOC	= @OCAMLDOC@
+INSTALL		= @INSTALL@
+
+CC		= @CC@
+CFLAGS		= @CFLAGS@ @AUGEAS_CFLAGS@ @LIBXML2_CFLAGS@ \
+		  -DCAML_NAME_SPACE \
+	          -fPIC -I$(shell ocamlc -where) -Wall -Werror
+LDFLAGS		= @LDFLAGS@
+LIBS		= @AUGEAS_LIBS@ @LIBXML2_LIBS@ @LIBS@
+
+OCAMLCFLAGS	= -g
+OCAMLCPACKAGES	=
+OCAMLOPTFLAGS	=
+OCAMLOPTPACKAGES =
+
+OCAMLDOCFLAGS	= -html -sort
+
+export LIBRARY_PATH = .
+
+all:	mlaugeas.cma mlaugeas.cmxa test_augeas
+
+mlaugeas.cma: augeas-c.o augeas.cmo
+	ocamlmklib $(LDFLAGS) $(LIBS) -o mlaugeas $^
+
+mlaugeas.cmxa: augeas-c.o augeas.cmx
+	ocamlmklib $(LDFLAGS) $(LIBS) -o mlaugeas $^
+
+# Test program.
+
+test_augeas: test_augeas.cmo test_root mlaugeas.cma
+	$(OCAMLFIND) ocamlc -o $@ mlaugeas.cma $<
+
+test_root:
+	rm -rf $@
+	mkdir $@
+	mkdir $@/etc
+	cp /etc/hosts $@/etc/
+
+check:
+	LD_LIBRARY_PATH=. ./test_augeas
+
+# Clean.
+
+clean:
+	rm -f core *~ *.cmi *.cmo *.cmx *.cma *.cmxa *.a *.o *.so *.opt
+	rm -f test_augeas
+	rm -rf test_root
+
+# Documentation.
+
+ifneq ($(OCAMLDOC),)
+doc:
+	rm -rf html
+	mkdir html
+	$(OCAMLDOC) $(OCAMLDOCFLAGS) -d html augeas.mli augeas.ml
+endif
+
+# Install.
+
+install:
+	ocamlfind install augeas \
+	  META *.mli *.cmx *.cma *.cmxa *.a augeas.cmi *.so
+
+# Standard rules.
+
+.mli.cmi:
+	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) $(OCAMLCPACKAGES) -c $<
+.ml.cmo:
+	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) $(OCAMLCPACKAGES) -c $<
+.ml.cmx:
+	$(OCAMLFIND) ocamlopt $(OCAMLOPTFLAGS) $(OCAMLOPTPACKAGES) -c $<
+
+depend: .depend
+
+.depend: augeas.mli augeas.ml
+	rm -f .depend
+	$(OCAMLFIND) ocamldep $(OCAMLCPACKAGES) $^ > $@
+
+ifeq ($(wildcard .depend),.depend)
+include .depend
+endif
+
+# Distribution.
+
+dist:
+	$(MAKE) check-manifest
+	rm -rf $(PACKAGE)-$(VERSION)
+	mkdir $(PACKAGE)-$(VERSION)
+	tar -cf - -T MANIFEST | tar -C $(PACKAGE)-$(VERSION) -xf -
+	$(INSTALL) -m 0755 configure $(PACKAGE)-$(VERSION)/
+	$(INSTALL) -m 0644 aclocal.m4 $(PACKAGE)-$(VERSION)/
+	$(INSTALL) -m 0644 config.h.in $(PACKAGE)-$(VERSION)/
+	tar zcf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION)
+	rm -rf $(PACKAGE)-$(VERSION)
+	ls -l $(PACKAGE)-$(VERSION).tar.gz
+
+check-manifest:
+	git ls-files | sort > .check-manifest; \
+	sort MANIFEST > .orig-manifest; \
+	diff -u .orig-manifest .check-manifest; rv=$$?; \
+	rm -f .orig-manifest .check-manifest; \
+	exit $$rv
+
+.PHONY: depend dist check-manifest dpkg doc
+
+.SUFFIXES:      .cmo .cmi .cmx .ml .mli .mll

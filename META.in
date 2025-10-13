@@ -1,0 +1,5 @@
+name="augeas"
+version="@PACKAGE_VERSION@"
+description="Bindings to the Augeas configuration library"
+archive(byte)="mlaugeas.cma"
+archive(native)="mlaugeas.cmxa"
